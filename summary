@@ -1,0 +1,420 @@
+```toc
+style: number
+min_depth: 1
+max_depth: 6
+```
+
+---
+
+# Data Analysis steps
+1. Getting the data
+2. Processing the data
+3. Visualizing the data
+4. Reports
+5. Analysis
+6. Machine Learning
+
+---
+
+# Data Loading
+
+## Create a dataframe manually
+```python
+df = pd.DataFrame({
+    'Population': [
+	    35.467,
+		63.951,
+		80.94 , 
+		60.665, 
+		127.061, 
+		64.511, 
+		318.523],
+    'GDP': [
+        1785387,
+        2833687,
+        3874437,
+        2167744,
+        4602367,
+        2950039,
+        17348075
+    ],
+    'Surface Area': [
+        9984670,
+        640679,
+        357114,
+        301336,
+        377930,
+        242495,
+        9525067
+    ],
+    'HDI': [
+        0.913,
+        0.888,
+        0.916,
+        0.873,
+        0.891,
+        0.907,
+        0.915
+    ],
+    'Continent': [
+        'America',
+        'Europe',
+        'Europe',
+        'Europe',
+        'Asia',
+        'Europe',
+        'America'
+    ]
+}, columns=['Population', 'GDP', 'Surface Area', 'HDI', 'Continent'])
+```
+
+## Define index
+
+```python
+df.index = [
+    'Canada',
+    'France',
+    'Germany',
+    'Italy',
+    'Japan',
+    'United Kingdom',
+    'United States',
+]
+```
+
+## Read a csv
+
+```python
+!head data/sales_data.csv
+
+df = pd.read_csv(
+    'data/sales_data.csv',
+    parse_dates=['column_with_dates'])
+```
+
+# Data at a glance
+```python
+df.head()
+df.shape
+df.size
+df.info()
+df.describe()
+df.dtypes
+df.dtypes.value_counts()
+
+df.min()
+
+
+```
+
+```python
+df.columns # Shpws the columns of the dataframe
+
+df.index # Shows the indexes of the dataframe
+```
+
+
+# Numerical analysis and visualization
+
+```python
+df['column'].mean()
+df['column'].median()
+df['column'].plot(kind='box', vert=False, figsize=(14,6))
+df['column'].plot(kind='density', figsize=(14,6))
+```
+
+## Density plot
+```python
+ax = df['Unit_Cost'].plot(kind='density', figsize=(14,6)) # kde
+ax.axvline(df['Unit_Cost'].mean(), color='red')
+ax.axvline(df['Unit_Cost'].median(), color='green')
+```
+
+## Histogram
+```python
+ax = sales['Unit_Cost'].plot(kind='hist', figsize=(14,6))
+ax.set_ylabel('Number of Sales')
+ax.set_xlabel('dollars')
+```
+
+## Pie Plot
+```python
+df['column'].value_counts().plot(kind='pie', figsize=(6,6))
+```
+
+
+# Categorical analysis and visualization
+```python
+df['column'].value_counts()
+```
+
+## Bar chart with value_counts()
+```python
+ax = df['column'].value_counts().plot(kind='bar', figsize=(14,6))
+ax.set_ylabel('Name of y axis')
+```
+
+# Relationships between columns
+## Correlation matrix
+```python
+corr = df.corr()
+corr
+```
+
+```python
+fig = plt.figure(figsize=(8,8))
+plt.matshow(corr, cmap='RdBu', fignum=fig.number)
+plt.xticks(range(len(corr.columns)), corr.columns, rotation='vertical');
+plt.yticks(range(len(corr.columns)), corr.columns);
+```
+
+![[1-jKlY7iYuI0XoHSx0M9UCMQ.png|400]]
+## Scatter plot
+```python
+df.plot(kind='scatter', x='column A', y='Column B', figsize=(6,6))
+```
+
+## Box plot
+```python
+ax = df[['Column A', 'Column B']].boxplot(by='Column B', figsize=(10,6))
+ax.set_ylabel('Name of y axis')
+```
+
+## Box plot (many)
+```python
+boxplot_cols = ['Column A', 'Column B', 'Column C', 'Column D', 'Column E', 'Column F']
+
+df[boxplot_cols].plot(kind='box', subplots=True, layout=(2,3), figsize=(14,8))
+```
+
+
+# Column Wrangling
+## Calculate a new column
+Example:
+
+```python
+df['Column_new1'] = df['Column_A'] / df['Column_B']
+df['Column_new2'] = df['Column_A'] * df['Column_B']
+df['Column_new3'] = df['Column_A'] - df['Column_B']
+```
+
+```python
+df['Column_A'] = sales['Column_A'] * 1.03
+
+# Is equal to:
+
+df['Column_A'] *= 1.03
+```
+
+Print DataFrame considering only selected columns
+
+```python
+df[['Column_A', 'Column_B']]
+```
+
+## Selection & Indexing
+Selection of columns and rows
+
+```python
+# Column
+df['Columna_A'] # Returns serie
+
+df['Columna_A'].to_frame() # Returns dataframe
+
+# Row / method 1
+
+df.loc['Row_A']
+
+# Row / method 2
+
+df.iloc[2]
+
+# Row / method 3 (This method is not recommended, it is recommended to use "loc" and "iloc")
+
+df[1:3] # Returns data from row 2 to row 3.
+
+
+```
+
+
+Returns dataframe with rows where Column_A values are equal to Value_1:
+
+```python
+df.loc[df['Column_A'] == 'Value_1']
+```
+
+Returns the mean of Column_B considering a filtered Column_A  a filtered column
+
+```python
+df.loc[df['Column_A'] == 'Value_1', 'Column_B'].mean()
+```
+
+Returns the amount of rows:
+
+**Or:**
+```python
+df.loc[(df['Column_A'] == 'Value_1') | (df['Column_A'] == 'Value_2')].shape[0]
+```
+
+ **And:**
+```python
+df.loc[(df['Column_A'] == 'Value_1') & (df['Column_B'] == 'Value_2')].shape[0]
+```
+
+# Modifying DataFrames
+
+## Adding a new column
+```python
+df['New_column'] = 'Value_1' or /List or /Operation-of-existing-columns
+```
+
+## Renaming columns and rows
+### Selected columns and rows
+
+```python
+df.rename(
+    columns={
+        'column_A-old-name': 'column_A-new-name',
+        'column_B-old-name': 'column_B-new-name'
+    }, index={
+        'index_A-old-name': 'index_A-new-name',
+        'index_B-old-name': 'index_B-new-name',
+        'index_C-old-name': 'index_C-new-name'
+    })
+```
+
+### Change COLUMNS and ROWS to upper / lower case
+```python
+# str function
+df.rename(index=str.upper)
+df.rename(columns=str.upper)
+df.rename(columns=str.title)
+
+# lambda function
+df.rename(index=lambda x: x.upper())
+df.rename(index=lambda x: x.lower())
+df.rename(index=lambda x: x.title())
+```
+
+
+## Modify selected rows in a column from a df
+Modify rows of Column_A which Column_B is equal to Value_1
+```python
+df.loc[df['Column_B'] == 'Value_1', 'Column_A'] *= 1.1
+```
+
+## Adding values
+Not modifying original DataFrame:
+```python
+df.append(pd.Series({
+    'Column_A': value_1,
+    'Column_B': value_2
+}, name='selected_index'))
+```
+
+Modifying original DataFrame:
+```python
+df.loc['Row_A'] = pd.Series({'Column_A': value_1, 'Column_B': value_2})
+```
+
+## Radical index changes
+```python
+df.reset_index()
+df.set_index('Column_A')
+```
+
+
+# Dropping data
+## Drop rows
+```python
+# Method 1
+
+df.drop('Row_A')
+df.drop(['Row_A', 'Row_B', 'Row_C'])
+
+# Method 2
+
+df.drop(['Row_A', 'Row_B', 'Row_C'], axis = 0)
+
+# Method 3
+
+df.drop(['Row_A', 'Row_B', 'Row_C'], axis = 'rows')
+```
+
+## Drop Columns
+```python
+# Method 1
+
+df.drop(columns = ['Column_A', 'Column_B', 'Column_C'])
+
+# Method 2
+
+df.drop(['Column_A', 'Column_B', 'Column_C'], axis = 1)
+
+# Method 3
+
+df.drop(['Column_A', 'Column_B', 'Column_C'], axis = 'columns')
+```
+
+To make the "drop" function editable:
+
+```python
+df.drop(columns='Column_A', inplace=True)
+```
+
+# Statistical
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+---
+
+
+
+# Código para heatmap de demanda año vs 24 hours 
+
+```python
+from scipy.interpolate import griddata
+from jdcal import jd2jcal
+from datetime import datetime
+
+n = 366*24
+df = pd.DataFrame(index=pd.date_range(start='2016-01-01 00:00', freq='H', periods=n),
+                  data={'z': np.random.randn(n)})
+df["x"] = df.index.date
+df["y"] = df.index.hour
+df.head()
+
+xi = np.linspace(df.index.to_julian_date().min(), df.index.to_julian_date().max(), 1000)
+yi = np.linspace(df.y.min(), df.y.max(), 1000)
+zi = griddata((df.index.to_julian_date(),df.index.hour),df.z,(xi[None,:],yi[:,None]),method='linear')
+xij = [jd2jcal(0,v) for v in xi]
+xid = [datetime(x[0],x[1],x[2]) for x in xij]
+plt.contourf(xid,yi,zi)
+plt.colorbar()
+plt.show()
+```
